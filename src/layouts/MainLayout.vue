@@ -43,7 +43,11 @@
           flat
           round
           dense
-          icon="music_note"
+          :icon="
+            soundsStore.engine?.mode === PlayerMode.Casserolade
+              ? 'music_note'
+              : 'repeat_on'
+          "
           @click="toggleModeButtonClicked()"
         />
         <q-btn flat round dense icon="help" @click="aboutButtonClicked()" />

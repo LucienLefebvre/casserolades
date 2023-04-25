@@ -26,7 +26,7 @@ export const useSoundsStore = defineStore('sounds', {
     } as SoundModel,
 
     showEditWindow: false,
-    showAboutWindow: false,
+    showAboutWindow: true,
 
     audioContext: null as AudioContext | null,
     stereoAnalyser: null as StereoAnalyserObject | null,
