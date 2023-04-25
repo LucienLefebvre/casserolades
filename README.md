@@ -1,4 +1,4 @@
-# Casserolades (casseroles)
+# Casserolades
 
 Des casseroles pour Macron
 
