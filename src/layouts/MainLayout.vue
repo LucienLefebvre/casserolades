@@ -5,7 +5,20 @@
         class="main-toolbar"
         :style="{ height: soundsStore.toolBarHeight + 'px' }"
       >
-        <q-toolbar-title> Casserolades </q-toolbar-title>
+        <q-toolbar-title
+          v-if="soundsStore.engine?.mode === PlayerMode.Casserolade"
+        >
+          Casserolades
+        </q-toolbar-title>
+        <q-toolbar-title v-if="soundsStore.engine?.mode === PlayerMode.Notes">
+          Notes
+        </q-toolbar-title>
+        <q-btn
+          v-if="soundsStore.engine?.mode === PlayerMode.Notes"
+          label="♫ On est là ♫"
+          @click="melodyButtonClicked()"
+          :style="{ color: soundsStore.melodyLaunched ? 'green' : 'white' }"
+        />
         <q-btn-dropdown
           v-if="soundsStore.engine?.mode === PlayerMode.Notes"
           label="Son"
@@ -17,6 +30,10 @@
                 clickable
                 v-close-popup
                 @click="soundSelectorClicked(index - 1)"
+                :style="{
+                  'background-color':
+                    soundsStore.tonalSoundID === index - 1 ? 'green' : 'white',
+                }"
               >
                 <q-item-section>
                   <q-item-label>Son {{ index }}</q-item-label>
@@ -50,6 +67,7 @@
           "
           @click="toggleModeButtonClicked()"
         />
+
         <q-btn flat round dense icon="help" @click="aboutButtonClicked()" />
       </q-toolbar>
     </q-header>
@@ -100,6 +118,12 @@ function soundSelectorClicked(id: number) {
 
 function aboutButtonClicked() {
   soundsStore.showAboutWindow = true;
+}
+
+function melodyButtonClicked() {
+  if (soundsStore.melodyLaunched) {
+    soundsStore.shouldStopMelody = true;
+  } else soundsStore.launchOnEstLaMelody();
 }
 </script>
 

@@ -36,7 +36,16 @@
           <br />
           Site optimisé pour mobile. <br />
         </p>
-
+        <br />
+        <div style="text-align: center">
+          <a
+            class="text-center"
+            href="https://twitter.com/CasserolesApp"
+            target="_blank"
+            >Twitter</a
+          >
+          <br />
+        </div>
         <div style="text-align: center">
           contact@descasserolespourmacron.fr <br />
           <a

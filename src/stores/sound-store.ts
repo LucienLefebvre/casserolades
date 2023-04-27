@@ -4,8 +4,13 @@ import {
   StereoAnalyserObject,
   AudioEngine,
   PlayerMode,
+  melodyNote,
 } from 'src/components/models';
-import { launchSound, stopSound } from 'src/composables/sound-controller';
+import {
+  launchSound,
+  playSound,
+  stopSound,
+} from 'src/composables/sound-controller';
 
 export const useSoundsStore = defineStore('sounds', {
   state: () => ({
@@ -39,7 +44,10 @@ export const useSoundsStore = defineStore('sounds', {
     columns: 2,
     numberOfSounds: 12,
 
-    tonalSoundID: 10,
+    tonalSoundID: 0,
+
+    melodyLaunched: false,
+    shouldStopMelody: false,
 
     notesArray: [
       'Do',
@@ -246,10 +254,89 @@ export const useSoundsStore = defineStore('sounds', {
     },
 
     launchCasseroladeMode() {
+      this.shouldStopMelody = true;
       if (this.engine === null) return;
       this.engine.mode = PlayerMode.Casserolade;
       this.generateRandomCasserolade();
       this.stopAllSounds();
+    },
+
+    launchOnEstLaMelody() {
+      const melody = [
+        { pitch: 4, duration: 1 / 2 },
+        { pitch: 2, duration: 1 / 2 },
+        { pitch: 0, duration: 2 },
+        { pitch: 0, duration: 1 / 2 },
+        { pitch: 4, duration: 1 / 2 },
+        { pitch: 7, duration: 2 },
+        { pitch: 4, duration: 1 / 2 },
+        { pitch: 5, duration: 1 / 2 },
+        { pitch: 7, duration: 1 / 2 },
+        { pitch: 7, duration: 1 / 2 },
+        { pitch: 7, duration: 1 / 2 },
+        { pitch: 7, duration: 1 / 2 },
+        { pitch: 7, duration: 1 / 2 },
+        { pitch: 5, duration: 1 / 2 },
+        { pitch: 4, duration: 1 / 2 },
+        { pitch: 5, duration: 1 / 2 },
+        { pitch: 2, duration: 2 },
+        { pitch: 2, duration: 1 / 2 },
+        { pitch: 4, duration: 1 / 2 },
+        { pitch: 5, duration: 1 / 2 },
+        { pitch: 5, duration: 1 / 2 },
+        { pitch: 5, duration: 1 / 2 },
+        { pitch: 5, duration: 1 / 2 },
+        { pitch: 5, duration: 1 },
+        { pitch: 4, duration: 1 / 2 },
+        { pitch: 2, duration: 1 / 2 },
+        { pitch: 4, duration: 1 / 2 },
+        { pitch: 4, duration: 1 / 2 },
+        { pitch: 4, duration: 1 / 2 },
+        { pitch: 4, duration: 1 / 2 },
+        { pitch: 4, duration: 1 },
+        { pitch: 2, duration: 1 / 2 },
+        { pitch: 0, duration: 1 / 2 },
+        { pitch: 2, duration: 1 / 2 },
+        { pitch: 2, duration: 1 / 2 },
+        { pitch: 2, duration: 1 / 2 },
+        { pitch: 2, duration: 1 / 2 },
+        { pitch: 2, duration: 1 / 2 },
+        { pitch: 0, duration: 1 / 2 },
+        { pitch: -1, duration: 1 / 2 },
+        { pitch: 2, duration: 1 / 2 },
+        { pitch: 0, duration: 1 },
+      ] as melodyNote[];
+
+      if (this.engine === null) return;
+
+      const noteIndex = 0;
+      const oneTimeLength = 60 / 130;
+
+      this.playMelody(melody, noteIndex, oneTimeLength);
+    },
+
+    stopMelody() {
+      this.shouldStopMelody = false;
+      this.melodyLaunched = false;
+    },
+
+    playMelody(melody: melodyNote[], noteIndex: number, oneTimeLength: number) {
+      if (this.engine === null) return;
+      if (this.shouldStopMelody) {
+        this.stopMelody();
+        return;
+      }
+
+      if (noteIndex < melody.length) {
+        this.melodyLaunched = true;
+        const note = melody[noteIndex];
+        playSound(this.sounds[this.tonalSoundID], this.engine, note.pitch);
+        setTimeout(() => {
+          this.playMelody(melody, noteIndex + 1, oneTimeLength);
+        }, oneTimeLength * note.duration * 1000);
+      } else {
+        this.melodyLaunched = false;
+      }
     },
   },
 });
