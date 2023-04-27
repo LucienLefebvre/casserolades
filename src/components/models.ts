@@ -42,3 +42,8 @@ export enum PlayerMode {
   Casserolade,
   Notes,
 }
+
+export interface melodyNote {
+  pitch: number;
+  duration: number;
+}
