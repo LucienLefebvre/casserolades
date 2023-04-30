@@ -332,12 +332,13 @@ export const useSoundsStore = defineStore('sounds', {
     },
 
     launchCartonRougeMode() {
+      this.cartonRougeMode = true;
       this.sounds.forEach((sound) => {
         sound.volumeRandomness = 5;
         sound.pitchRandomness = 5;
         sound.repetitionRateRandomness = 50;
         sound.isLaunched = true;
-        this.cartonRougeMode = true;
+
         if (this.engine === null) return;
         launchSound(sound, this.engine);
       });
