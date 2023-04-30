@@ -46,4 +46,5 @@ export enum PlayerMode {
 export interface melodyNote {
   pitch: number;
   duration: number;
+  soundId?: number | null;
 }
