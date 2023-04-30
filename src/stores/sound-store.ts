@@ -12,6 +12,11 @@ import {
   stopSound,
 } from 'src/composables/sound-controller';
 
+import { randomizeValueClipped } from 'src/composables/math-helpers';
+import { onEstLaMelody } from 'src/tunes/onestla';
+import { generateLaRetraiteMelody } from 'src/tunes/laretraitea60ans';
+import { internationaleMelody } from 'src/tunes/internationale';
+
 export const useSoundsStore = defineStore('sounds', {
   state: () => ({
     sounds: [] as SoundModel[],
@@ -32,6 +37,7 @@ export const useSoundsStore = defineStore('sounds', {
 
     showEditWindow: false,
     showAboutWindow: true,
+    showMelodyPanel: false,
 
     audioContext: null as AudioContext | null,
     stereoAnalyser: null as StereoAnalyserObject | null,
@@ -48,6 +54,9 @@ export const useSoundsStore = defineStore('sounds', {
 
     melodyLaunched: false,
     shouldStopMelody: false,
+    playingMelodyID: -1,
+
+    cartonRougeMode: false,
 
     notesArray: [
       'Do',
@@ -262,52 +271,29 @@ export const useSoundsStore = defineStore('sounds', {
     },
 
     launchOnEstLaMelody() {
-      const melody = [
-        { pitch: 4, duration: 1 / 2 },
-        { pitch: 2, duration: 1 / 2 },
-        { pitch: 0, duration: 2 },
-        { pitch: 0, duration: 1 / 2 },
-        { pitch: 4, duration: 1 / 2 },
-        { pitch: 7, duration: 2 },
-        { pitch: 4, duration: 1 / 2 },
-        { pitch: 5, duration: 1 / 2 },
-        { pitch: 7, duration: 1 / 2 },
-        { pitch: 7, duration: 1 / 2 },
-        { pitch: 7, duration: 1 / 2 },
-        { pitch: 7, duration: 1 / 2 },
-        { pitch: 7, duration: 1 / 2 },
-        { pitch: 5, duration: 1 / 2 },
-        { pitch: 4, duration: 1 / 2 },
-        { pitch: 5, duration: 1 / 2 },
-        { pitch: 2, duration: 2 },
-        { pitch: 2, duration: 1 / 2 },
-        { pitch: 4, duration: 1 / 2 },
-        { pitch: 5, duration: 1 / 2 },
-        { pitch: 5, duration: 1 / 2 },
-        { pitch: 5, duration: 1 / 2 },
-        { pitch: 5, duration: 1 / 2 },
-        { pitch: 5, duration: 1 },
-        { pitch: 4, duration: 1 / 2 },
-        { pitch: 2, duration: 1 / 2 },
-        { pitch: 4, duration: 1 / 2 },
-        { pitch: 4, duration: 1 / 2 },
-        { pitch: 4, duration: 1 / 2 },
-        { pitch: 4, duration: 1 / 2 },
-        { pitch: 4, duration: 1 },
-        { pitch: 2, duration: 1 / 2 },
-        { pitch: 0, duration: 1 / 2 },
-        { pitch: 2, duration: 1 / 2 },
-        { pitch: 2, duration: 1 / 2 },
-        { pitch: 2, duration: 1 / 2 },
-        { pitch: 2, duration: 1 / 2 },
-        { pitch: 2, duration: 1 / 2 },
-        { pitch: 0, duration: 1 / 2 },
-        { pitch: -1, duration: 1 / 2 },
-        { pitch: 2, duration: 1 / 2 },
-        { pitch: 0, duration: 1 },
-      ] as melodyNote[];
+      this.playingMelodyID = 1;
 
-      if (this.engine === null) return;
+      const noteIndex = 0;
+      const oneTimeLength = 60 / 130;
+
+      this.playMelody(onEstLaMelody, noteIndex, oneTimeLength);
+    },
+
+    launchLaRetraiteMelody() {
+      this.playingMelodyID = 0;
+      const randomness = 1;
+      const offBeatSoundID = 4;
+      const melody = generateLaRetraiteMelody(randomness, offBeatSoundID);
+
+      const noteIndex = 0;
+      const oneTimeLength = 60 / 112;
+
+      this.playMelody(melody, noteIndex, oneTimeLength);
+    },
+
+    launchLinternationaleMelody() {
+      this.playingMelodyID = 2;
+      const melody = internationaleMelody;
 
       const noteIndex = 0;
       const oneTimeLength = 60 / 130;
@@ -330,13 +316,31 @@ export const useSoundsStore = defineStore('sounds', {
       if (noteIndex < melody.length) {
         this.melodyLaunched = true;
         const note = melody[noteIndex];
-        playSound(this.sounds[this.tonalSoundID], this.engine, note.pitch);
+        const soundId =
+          melody[noteIndex].hasOwnProperty('soundId') === false
+            ? this.tonalSoundID
+            : melody[noteIndex].soundId;
+        if (soundId === null) return;
+        if (soundId === undefined) return;
+        playSound(this.sounds[soundId], this.engine, note.pitch);
         setTimeout(() => {
           this.playMelody(melody, noteIndex + 1, oneTimeLength);
         }, oneTimeLength * note.duration * 1000);
       } else {
         this.melodyLaunched = false;
       }
+    },
+
+    launchCartonRougeMode() {
+      this.sounds.forEach((sound) => {
+        sound.volumeRandomness = 5;
+        sound.pitchRandomness = 5;
+        sound.repetitionRateRandomness = 50;
+        sound.isLaunched = true;
+        this.cartonRougeMode = true;
+        if (this.engine === null) return;
+        launchSound(sound, this.engine);
+      });
     },
   },
 });

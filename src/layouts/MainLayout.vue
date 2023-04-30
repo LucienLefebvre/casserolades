@@ -11,37 +11,14 @@
           Casserolades
         </q-toolbar-title>
         <q-toolbar-title v-if="soundsStore.engine?.mode === PlayerMode.Notes">
-          Notes
+          Mélodie
         </q-toolbar-title>
         <q-btn
           v-if="soundsStore.engine?.mode === PlayerMode.Notes"
-          label="♫ On est là ♫"
-          @click="melodyButtonClicked()"
-          :style="{ color: soundsStore.melodyLaunched ? 'green' : 'white' }"
+          label="Mélodies"
+          @click="openMelodyPanel()"
         />
-        <q-btn-dropdown
-          v-if="soundsStore.engine?.mode === PlayerMode.Notes"
-          label="Son"
-          color="green"
-        >
-          <q-list>
-            <div v-for="index in 12" :key="index">
-              <q-item
-                clickable
-                v-close-popup
-                @click="soundSelectorClicked(index - 1)"
-                :style="{
-                  'background-color':
-                    soundsStore.tonalSoundID === index - 1 ? 'green' : 'white',
-                }"
-              >
-                <q-item-section>
-                  <q-item-label>Son {{ index }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </div>
-          </q-list>
-        </q-btn-dropdown>
+        <SoundSelector />
         <q-btn
           v-if="soundsStore.engine?.mode === PlayerMode.Casserolade"
           flat
@@ -87,13 +64,24 @@
       <AboutWindow />
     </div>
   </q-dialog>
+  <q-dialog v-model="soundsStore.showMelodyPanel">
+    <div class="column justify-center align-center">
+      <MelodyPanel />
+    </div>
+  </q-dialog>
+  <q-dialog v-model="soundsStore.cartonRougeMode" maximized>
+    <CartonRouge />
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
 import { PlayerMode } from 'src/components/models';
+import CartonRouge from 'src/components/CartonRouge.vue';
 import { useSoundsStore } from 'src/stores/sound-store';
 import SoundOptions from 'src/components/SoundOptions.vue';
 import AboutWindow from 'src/components/AboutWindow.vue';
+import MelodyPanel from 'src/components/MelodyPanel.vue';
+import SoundSelector from 'src/components/SoundSelector.vue';
 const soundsStore = useSoundsStore();
 
 function generateButtonClicked() {
@@ -120,10 +108,8 @@ function aboutButtonClicked() {
   soundsStore.showAboutWindow = true;
 }
 
-function melodyButtonClicked() {
-  if (soundsStore.melodyLaunched) {
-    soundsStore.shouldStopMelody = true;
-  } else soundsStore.launchOnEstLaMelody();
+function openMelodyPanel() {
+  soundsStore.showMelodyPanel = true;
 }
 </script>
 

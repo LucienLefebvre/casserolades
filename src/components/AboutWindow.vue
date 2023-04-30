@@ -15,6 +15,14 @@
           Des casseroles pour Macron !!!
         </div>
         <br />
+        <div style="text-align: center; margin: 0 auto;>">
+          <q-btn
+            color="red"
+            label="Carton rouge !"
+            @click="soundsStore.launchCartonRougeMode()"
+          />
+        </div>
+        <br />
         Comment ça marche ?
         <br />
         <p>
@@ -31,7 +39,9 @@
           <i>- Mode "Notes"</i><br />
           Cliquez sur la note dans la barre du haut pour y accéder. <br />
           Cliquez sur une case pour jouer une note. La séléction du son de
-          casserole se fait avec le menu déroulant en haut de l'écran
+          casserole se fait avec le menu déroulant en haut de l'écran. <br />
+          Dans ce mode, dans la barre du haut, vous pouvez jouer deux tubes de
+          manif !
           <br />
           <br />
           Site optimisé pour mobile. <br />
@@ -55,7 +65,7 @@
             >Source sur GitHub</a
           >
           <br />
-          Version 1.0.0
+          Version 1.0.2
         </div>
       </div>
     </div>

@@ -16,10 +16,20 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue';
 import SinglePlayer from './SinglePlayer.vue';
 import { useSoundsStore } from 'src/stores/sound-store';
 import PeakMeter from './PeakMeter.vue';
 const soundsStore = useSoundsStore();
+
+watch(
+  () => soundsStore.showMelodyPanel,
+  () => {
+    if (!soundsStore.showMelodyPanel) {
+      soundsStore.shouldStopMelody = true;
+    }
+  }
+);
 </script>
 
 <style scoped>

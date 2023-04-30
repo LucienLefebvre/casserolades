@@ -45,14 +45,12 @@
 
 <script setup lang="ts">
 import { defineProps, PropType, ref } from 'vue';
-import { TouchHold } from 'quasar';
 import { PlayerMode, SoundModel } from './models';
 import {
   playSound,
   toggleLaunchStopSound,
 } from 'src/composables/sound-controller';
 import { useSoundsStore } from 'src/stores/sound-store';
-import SoundOptions from './SoundOptions.vue';
 
 const soundsStore = useSoundsStore();
 const props = defineProps({
