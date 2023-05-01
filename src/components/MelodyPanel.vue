@@ -91,6 +91,7 @@ function linternationaleButtonClicked() {
   justify-content: center;
   padding: 10px;
   border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.5);
 }
 .button {
   background-color: red;

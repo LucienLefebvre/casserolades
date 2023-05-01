@@ -38,7 +38,7 @@ export function playSound(
   source.buffer = sound.buffer;
 
   let pitch = 0;
-  if (engine.mode === PlayerMode.Casserolade) {
+  if (engine.mode === (PlayerMode.Casserolade || PlayerMode.FaitesLesTaire)) {
     pitch = randomizeValueClipped(sound.pitchCT, sound.pitchRandomness);
   } else if (engine.mode === PlayerMode.Notes) {
     pitch = basePitch ?? 0;

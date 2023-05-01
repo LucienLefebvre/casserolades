@@ -15,11 +15,18 @@
           Des casseroles pour Macron !!!
         </div>
         <br />
-        <div style="text-align: center; margin: 0 auto;>">
+        <!--         <div style="text-align: center; margin: 0 auto;>">
           <q-btn
             color="red"
             label="Carton rouge !"
             @click="soundsStore.launchCartonRougeMode()"
+          />
+        </div> -->
+        <div style="text-align: center; margin: 0 auto;>">
+          <q-btn
+            color="red"
+            label="Faites les taire !"
+            @click="soundsStore.launchFaitesLesTaireMode()"
           />
         </div>
         <br />

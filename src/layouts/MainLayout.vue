@@ -72,6 +72,12 @@
   <q-dialog v-model="soundsStore.cartonRougeMode" maximized>
     <CartonRouge />
   </q-dialog>
+  <q-dialog v-model="soundsStore.showGameStartDialog">
+    <GameStartDialog />
+  </q-dialog>
+  <q-dialog v-model="soundsStore.showGameIntermediateDialog">
+    <GameIntermediateDialog />
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -82,6 +88,8 @@ import SoundOptions from 'src/components/SoundOptions.vue';
 import AboutWindow from 'src/components/AboutWindow.vue';
 import MelodyPanel from 'src/components/MelodyPanel.vue';
 import SoundSelector from 'src/components/SoundSelector.vue';
+import GameStartDialog from 'src/components/GameStartDialog.vue';
+import GameIntermediateDialog from 'src/components/GameIntermediateDialog.vue';
 const soundsStore = useSoundsStore();
 
 function generateButtonClicked() {

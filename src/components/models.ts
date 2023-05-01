@@ -41,10 +41,35 @@ export interface AudioEngine {
 export enum PlayerMode {
   Casserolade,
   Notes,
+  FaitesLesTaire,
 }
 
 export interface melodyNote {
   pitch: number;
   duration: number;
   soundId?: number | null;
+}
+
+export interface SonPol {
+  soundPath: string;
+  imagePath?: string;
+  auteur: string;
+}
+
+export interface SonPolModel {
+  name?: string;
+  imagePath?: string;
+  buffer: AudioBuffer;
+  length: number;
+  numberOfHitsRequired: number;
+  source?: AudioBufferSourceNode;
+  startTime?: number;
+  auteur: string;
+}
+
+export interface GameData {
+  score: number;
+  numberOfHits: number;
+  timeToReachHits: number;
+  panelId: number;
 }

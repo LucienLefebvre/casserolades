@@ -5,6 +5,8 @@ import {
   AudioEngine,
   PlayerMode,
   melodyNote,
+  SonPolModel,
+  GameData,
 } from 'src/components/models';
 import {
   launchSound,
@@ -16,6 +18,7 @@ import { randomizeValueClipped } from 'src/composables/math-helpers';
 import { onEstLaMelody } from 'src/tunes/onestla';
 import { generateLaRetraiteMelody } from 'src/tunes/laretraitea60ans';
 import { internationaleMelody } from 'src/tunes/internationale';
+import { listeSonsPol } from './liste-sons-pol';
 
 export const useSoundsStore = defineStore('sounds', {
   state: () => ({
@@ -72,6 +75,31 @@ export const useSoundsStore = defineStore('sounds', {
       'La#',
       'Si',
     ] as string[],
+
+    numberOfGameCells: 10,
+    numberOfGameRows: 5,
+    activeCell: -1,
+    gameInfoHeight: 50,
+
+    showGameStartDialog: false,
+    showGameEndDialog: false,
+    showGameIntermediateDialog: false,
+    numberOfHitsPerSecondsRequired: 1,
+    polSounds: [] as SonPolModel[],
+    polSoundsIdSequence: [] as number[],
+    activeSonPol: {
+      name: '',
+      imagePath: '',
+      buffer: null as AudioBuffer | null,
+      source: null as AudioBufferSourceNode | null,
+    } as SonPolModel,
+
+    gameData: {
+      panelId: 0,
+      score: 0,
+      numberOfHits: 0,
+      timeToReachHits: 0,
+    } as GameData,
   }),
   getters: {},
   actions: {
@@ -342,6 +370,164 @@ export const useSoundsStore = defineStore('sounds', {
         if (this.engine === null) return;
         launchSound(sound, this.engine);
       });
+    },
+    playRandomSound() {
+      if (this.engine === null) return;
+      let sound = this.sounds[this.generateRandomNumberBetween0and9()];
+      launchSound(sound, this.engine);
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          sound = this.sounds[this.generateRandomNumberBetween0and9()];
+          sound.volume = -12;
+          sound.pitchCT = randomizeValueClipped(sound.pitchCT, 50);
+          if (this.engine === null) return;
+          launchSound(sound, this.engine);
+          sound.pitchCT = 0;
+        }, this.generateRandomNumberBetween0and500());
+      }
+    },
+
+    launchFaitesLesTaireMode() {
+      if (this.engine === null) return;
+      this.engine.mode = PlayerMode.FaitesLesTaire;
+      this.showAboutWindow = false;
+      this.showGameStartDialog = true;
+      this.loadAllPolSounds();
+    },
+
+    launchGame() {
+      this.showGameStartDialog = false;
+      this.setRandomActiveCell();
+      this.polSoundsIdSequence = this.generateUniqueNumbersArray(
+        listeSonsPol.length,
+        listeSonsPol.length
+      );
+      this.launchPanel();
+    },
+
+    async loadAllPolSounds() {
+      listeSonsPol.forEach(async (son) => {
+        try {
+          const response = await fetch(son.soundPath);
+          const arrayBuffer = await response.arrayBuffer();
+          const audioBuffer = await this.audioContext?.decodeAudioData(
+            arrayBuffer
+          );
+
+          if (audioBuffer === undefined) return;
+          const sound: SonPolModel = {
+            auteur: son.auteur,
+            buffer: audioBuffer,
+            length: audioBuffer.duration,
+            numberOfHitsRequired: Math.floor(
+              audioBuffer.duration / this.numberOfHitsPerSecondsRequired
+            ),
+          };
+          this.polSounds.push(sound);
+        } catch (error) {
+          console.error(`Failed to load sound file: ${son.soundPath}`);
+        }
+      });
+    },
+
+    generateUniqueNumbersArray(length: number, maxNumber: number): number[] {
+      if (length > maxNumber) {
+        throw new Error('Length cannot be greater than maxNumber');
+      }
+
+      const result: number[] = [];
+
+      while (result.length < length) {
+        const randomNumber = Math.floor(Math.random() * maxNumber);
+
+        if (!result.includes(randomNumber)) {
+          result.push(randomNumber);
+        }
+      }
+
+      return result;
+    },
+
+    generateRandomNumberBetween0and9(): number {
+      return Math.floor(Math.random() * 10);
+    },
+
+    generateRandomNumberBetween0and500(): number {
+      return Math.floor(Math.random() * 500);
+    },
+
+    setActiveCell(cell: number) {
+      this.activeCell = cell;
+    },
+
+    setRandomActiveCell() {
+      this.activeCell = this.generateRandomNumberBetween0and9();
+    },
+
+    launchSonPolSound(sound: SonPolModel) {
+      if (this.audioContext === null) return;
+      if (this.engine === null) return;
+      sound.source = this.audioContext.createBufferSource();
+      sound.source.buffer = sound.buffer;
+      sound.source.connect(this.audioContext.destination);
+      sound.source.start();
+      sound.startTime = this.audioContext.currentTime;
+    },
+
+    launchPanel() {
+      const polSound =
+        this.polSounds[this.polSoundsIdSequence[this.gameData.panelId]];
+      this.activeSonPol = polSound;
+      this.launchSonPolSound(this.activeSonPol);
+      this.gameData.numberOfHits = 0;
+
+      this.showGameIntermediateDialog = false;
+    },
+
+    launchNextPanel() {
+      this.gameData.panelId++;
+      if (this.gameData.panelId === this.polSoundsIdSequence.length) {
+        this.endGame();
+        return;
+      }
+      this.launchPanel();
+    },
+
+    endGame() {
+      this.showGameEndDialog = true;
+      this.showGameIntermediateDialog = false;
+    },
+
+    activeCellClicked() {
+      this.playRandomSound();
+      this.setRandomActiveCell();
+      this.gameData.numberOfHits++;
+
+      if (
+        this.gameData.numberOfHits % this.activeSonPol.numberOfHitsRequired ===
+        0
+      ) {
+        this.numberOfHitsRequiredReached();
+      }
+      if (this.activeSonPol.source === null) return;
+      if (this.activeSonPol.source === undefined) return;
+
+      const playbackRate = this.activeSonPol.source.playbackRate.value;
+    },
+
+    numberOfHitsRequiredReached() {
+      if (this.engine?.audioContext.currentTime === undefined) return;
+      if (this.activeSonPol.startTime === undefined) return;
+      this.gameData.timeToReachHits =
+        this.engine.audioContext.currentTime - this.activeSonPol.startTime;
+      const rampTIme = this.activeSonPol.length - this.gameData.timeToReachHits;
+      this.activeSonPol.source?.playbackRate.linearRampToValueAtTime(
+        0.6,
+        this.engine.audioContext.currentTime + rampTIme
+      );
+
+      this.showGameIntermediateDialog = true;
+      //this.activeSonPol.source?.stop();
     },
   },
 });
