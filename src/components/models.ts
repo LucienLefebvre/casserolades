@@ -59,6 +59,7 @@ export interface SonPol {
 export interface SonPolModel {
   name?: string;
   imagePath?: string;
+  image: HTMLImageElement;
   buffer: AudioBuffer;
   length: number;
   numberOfHitsRequired: number;
@@ -68,8 +69,20 @@ export interface SonPolModel {
 }
 
 export interface GameData {
+  difficulty: number;
+  totalScore: number;
   score: number;
   numberOfHits: number;
   timeToReachHits: number;
   panelId: number;
+  tuLasFaitTaire: boolean;
+  gameEnded: boolean;
+}
+
+export interface missSoundModel {
+  buffer: AudioBuffer;
+  source?: AudioBufferSourceNode;
+
+  pitchCT: number;
+  pitchRandomness: number;
 }

@@ -29,6 +29,7 @@ import { useSoundsStore } from 'src/stores/sound-store';
 import GameCell from './GameCell.vue';
 import PeakMeter from './PeakMeter.vue';
 import GameInfo from './GameInfo.vue';
+
 const soundsStore = useSoundsStore();
 </script>
 
